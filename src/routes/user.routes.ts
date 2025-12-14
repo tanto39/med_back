@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { UserEntity } from '../entities/User';
+import { ApiResponseBuilder } from '../utils/apiResponse';
+import { UserResponse, UserWithDetailsResponse } from '../types/response';
 
 const router = Router();
 const userEntity = new UserEntity();
@@ -8,9 +10,20 @@ const userEntity = new UserEntity();
 router.get('/', async (req: Request, res: Response) => {
   try {
     const users = await userEntity.getAll();
-    res.json(users);
+    
+    const responseData: UserResponse[] = users.map(user => ({
+      login: user.login,
+      second_name: user.second_name,
+      first_name: user.first_name,
+      middle_name: user.middle_name,
+      role_name: user.role_name,
+    }));
+    
+    const response = ApiResponseBuilder.success(responseData);
+    res.json(response);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    const response = ApiResponseBuilder.error(error.message);
+    res.status(500).json(response);
   }
 });
 
@@ -20,12 +33,23 @@ router.get('/:login', async (req: Request, res: Response) => {
     const user = await userEntity.getById(req.params.login);
     
     if (!user) {
-      return res.status(404).json({ error: 'Пользователь не найден' });
+      const response = ApiResponseBuilder.notFound('Пользователь');
+      return res.status(404).json(response);
     }
     
-    res.json(user);
+    const responseData: UserResponse = {
+      login: user.login,
+      second_name: user.second_name,
+      first_name: user.first_name,
+      middle_name: user.middle_name,
+      role_name: user.role_name,
+    };
+    
+    const response = ApiResponseBuilder.success(responseData);
+    res.json(response);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    const response = ApiResponseBuilder.error(error.message);
+    res.status(500).json(response);
   }
 });
 
@@ -35,12 +59,23 @@ router.put('/:login', async (req: Request, res: Response) => {
     const updatedUser = await userEntity.update(req.params.login, req.body);
     
     if (!updatedUser) {
-      return res.status(404).json({ error: 'Пользователь не найден' });
+      const response = ApiResponseBuilder.notFound('Пользователь');
+      return res.status(404).json(response);
     }
     
-    res.json(updatedUser);
+    const responseData: UserResponse = {
+      login: updatedUser.login,
+      second_name: updatedUser.second_name,
+      first_name: updatedUser.first_name,
+      middle_name: updatedUser.middle_name,
+      role_name: updatedUser.role_name,
+    };
+    
+    const response = ApiResponseBuilder.success(responseData, 'Пользователь успешно обновлен');
+    res.json(response);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    const response = ApiResponseBuilder.error(error.message);
+    res.status(500).json(response);
   }
 });
 

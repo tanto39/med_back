@@ -20,9 +20,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Проверка кодировки для всех запросов
+// Установка заголовков для корректной кодировки
 app.use((req, res, next) => {
-  // Установка кодировки для ответов
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   next();
 });
@@ -35,41 +34,40 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/medical', medicalRoutes);
 app.use('/api/receptions', receptionRoutes);
 
-// Health check с проверкой БД
-app.get('/health', async (req, res) => {
-  try {
-    const { pool } = require('./config/database');
-    await pool.query('SELECT 1');
-    res.json({ 
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ 
+    success: true,
+    data: {
       status: 'OK', 
       timestamp: new Date(),
-      database: 'Connected'
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      status: 'ERROR', 
-      timestamp: new Date(),
-      database: 'Disconnected',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
+      service: 'Medical System API'
+    }
+  });
 });
 
-// Error handling middleware с правильной кодировкой
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    error: 'Маршрут не найден',
+    timestamp: new Date(),
+  });
+});
+
+// Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', err.stack);
   
-  // Конвертируем сообщение об ошибке в UTF-8
-  const errorMessage = Buffer.from(err.message || 'Что-то пошло не так!', 'utf8').toString('utf8');
-  
-  res.status(500).json({ 
-    error: 'Internal Server Error',
-    message: errorMessage
+  res.status(500).json({
+    success: false,
+    error: 'Внутренняя ошибка сервера',
+    timestamp: new Date(),
   });
 });
 
 app.listen(PORT, async () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
   
   // Проверяем подключение к БД
   await testConnection();
