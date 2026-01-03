@@ -1,4 +1,4 @@
-import { UserRole } from ".";
+import { AmbulatoryCard, Passport, User, UserRole } from ".";
 
 // Базовые типы ответов
 export interface ApiResponse<T = any> {
@@ -33,20 +33,12 @@ export interface AuthResponse {
 }
 
 export interface RegisterResponse {
-  user: UserResponse;
+  user: User;
   patient?: PatientResponse;
 }
 
 // Типы для пользователей
-export interface UserResponse {
-  login: string;
-  second_name?: string;
-  first_name?: string;
-  middle_name?: string;
-  role_name: UserRole;
-}
-
-export interface UserWithDetailsResponse extends UserResponse {
+export interface UserWithDetailsResponse extends User {
   patient?: PatientResponse;
   doctor?: DoctorResponse;
 }
@@ -59,34 +51,15 @@ export interface PatientResponse {
   policy_foms: number;
   phone_number: string;
   e_mail: string;
-  passport?: PassportResponse;
-  user?: UserResponse;
+  passport?: Passport;
+  user?: User;
 }
 
 export interface PatientWithDetailsResponse extends PatientResponse {
-  user: UserResponse;
-  ambulatory_card?: AmbulatoryCardResponse;
-  passport?: PassportResponse;
+  user: User;
+  ambulatory_card?: AmbulatoryCard;
+  passport?: Passport;
   receptions: ReceptionShortResponse[];
-}
-
-// Типы для паспорта
-export interface PassportResponse {
-  id_passport: number;
-  passport_series: number;
-  passport_number: number;
-  given_by: string;
-  given_date: string;
-  id_patient: number;
-}
-
-// Типы для амбулаторной карты
-export interface AmbulatoryCardResponse {
-  id_ambulatory_card: number;
-  registration_date: string;
-  registration_date_end?: string;
-  id_patient: number;
-  patient?: PatientResponse;
 }
 
 // Типы для докторов
@@ -97,11 +70,11 @@ export interface DoctorResponse {
   id_medical_profile: number;
   medical_degree?: MedicalDegreeResponse;
   medical_profile?: MedicalProfileResponse;
-  user?: UserResponse;
+  user?: User;
 }
 
 export interface DoctorWithDetailsResponse extends DoctorResponse {
-  user: UserResponse;
+  user: User;
   medical_degree: MedicalDegreeResponse;
   medical_profile: MedicalProfileResponse;
   receptions: ReceptionForDoctorResponse[];

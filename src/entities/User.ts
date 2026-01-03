@@ -1,8 +1,11 @@
 import { BaseEntity } from "./BaseEntity";
-import { User as UserType, Patient as PatientType, RegisterRequest } from "../types";
+import { User as UserType, Patient as PatientType, RegisterRequest, AmbulatoryCard, Passport } from "../types";
 import { pool } from "../config/database";
 import { PatientEntity } from "./Patient";
 import { DoctorEntity } from "./Doctor";
+import { AmbulatoryCardEntity } from "./AmbulatoryCard";
+import { PassportEntity } from "./Passport";
+import { formatDateForDB } from "../utils/helpers";
 
 export class UserEntity extends BaseEntity<UserType> {
   constructor() {
@@ -21,6 +24,18 @@ export class UserEntity extends BaseEntity<UserType> {
       const patientData: PatientType = { login: registerData.login };
       const patientEntity = new PatientEntity();
       const newPatient = await patientEntity.create(patientData);
+
+      if (newPatient.id_patient) {
+        const currentDate = new Date();
+        const dateNow = formatDateForDB(currentDate.toISOString().split("T")[0]) as string;
+        const ambulatoryCardData: AmbulatoryCard = { registration_date: dateNow, id_patient: newPatient.id_patient };
+        const ambulatoryCardEntity = new AmbulatoryCardEntity();
+        const newAmbulatoryCard = await ambulatoryCardEntity.create(ambulatoryCardData);
+
+        const passportEntity = new PassportEntity();
+        const passportData: Passport = { id_patient: newPatient.id_patient };
+        const newPassport = await passportEntity.create(passportData);
+      }
 
       await client.query("COMMIT");
       return { user: newUser, patient: newPatient };
@@ -62,5 +77,4 @@ export class UserEntity extends BaseEntity<UserType> {
     const result = await pool.query(query, [login, password]);
     return result.rows[0] || null;
   }
-  
 }

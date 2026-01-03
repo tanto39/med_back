@@ -67,16 +67,7 @@ router.put("/:id", async (req: Request, res: Response) => {
       return res.status(404).json(response);
     }
 
-    const responseData = {
-      id_patient: updatedPatient.id_patient,
-      login: updatedPatient.login,
-      snils: updatedPatient.snils,
-      policy_foms: updatedPatient.policy_foms,
-      phone_number: updatedPatient.phone_number,
-      e_mail: updatedPatient.e_mail,
-    };
-
-    const response = ApiResponseBuilder.success(responseData, "Данные пациента обновлены");
+    const response = ApiResponseBuilder.success(updatedPatient, "Данные пациента обновлены");
     res.json(response);
   } catch (error: any) {
     const response = ApiResponseBuilder.error(error.message);

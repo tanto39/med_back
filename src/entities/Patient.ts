@@ -1,6 +1,16 @@
 import { BaseEntity } from "./BaseEntity";
-import { Patient as PatientType, PatientWithDetailsResponse, UpdatePatientRequest } from "../types";
+import {
+  User as UserType,
+  Patient as PatientType,
+  PatientWithDetailsResponse,
+  UpdatePatientRequest,
+  Passport,
+} from "../types";
 import { pool } from "../config/database";
+import { UserEntity } from "./User";
+import { PassportEntity } from "./Passport";
+import { AmbulatoryCardEntity } from "./AmbulatoryCard";
+import { formatDateForDB } from "../utils/helpers";
 
 export class PatientEntity extends BaseEntity<PatientType> {
   constructor() {
@@ -49,7 +59,7 @@ export class PatientEntity extends BaseEntity<PatientType> {
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
-      // Создаем пользователя
+
       const patientData: PatientType = {
         snils: data.snils,
         policy_foms: data.policy_foms,
@@ -57,6 +67,37 @@ export class PatientEntity extends BaseEntity<PatientType> {
         e_mail: data.e_mail,
       };
       const updatedPatient = await this.update(id, patientData);
+
+      if (data.user) {
+        const userEntity = new UserEntity();
+        const updatedUser = await userEntity.update(data.user.login, data.user);
+        if (updatedUser) {
+          data.user = updatedUser;
+        }
+      }
+
+      if (data.passport) {
+        const passportEntity = new PassportEntity();
+        data.passport.given_date = formatDateForDB(data.passport.given_date);
+        const updatedPassport = await passportEntity.update(data.passport.id_passport as number, data.passport);
+        if (updatedPassport) {
+          data.passport = updatedPassport;
+        }
+      }
+
+      if (data.ambulatory_card) {
+        data.ambulatory_card.registration_date = formatDateForDB(data.ambulatory_card.registration_date) as string;
+        data.ambulatory_card.registration_date_end = formatDateForDB(data.ambulatory_card.registration_date_end);
+
+        const ambulatoryCardEntity = new AmbulatoryCardEntity();
+        const updatedCard = await ambulatoryCardEntity.update(
+          data.ambulatory_card.id_ambulatory_card as number,
+          data.ambulatory_card
+        );
+        if (updatedCard) {
+          data.ambulatory_card = updatedCard;
+        }
+      }
 
       await client.query("COMMIT");
       return data;
@@ -67,5 +108,4 @@ export class PatientEntity extends BaseEntity<PatientType> {
       client.release();
     }
   }
-  
 }

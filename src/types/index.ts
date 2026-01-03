@@ -3,7 +3,7 @@ import { PatientWithDetailsResponse } from './response';
 export * from './response';
 export interface User {
   login: string;
-  password: string;
+  password?: string;
   second_name?: string;
   first_name?: string;
   middle_name?: string;
@@ -89,11 +89,11 @@ export interface MedicalDegree {
 
 export interface Passport {
   id_passport?: number;
-  passport_series: number;
-  passport_number: number;
-  given_by: string;
-  given_date: string;
-  id_patient: number;
+  passport_series?: number;
+  passport_number?: number;
+  given_by?: string;
+  given_date?: string;
+  id_patient?: number;
 }
 
 export interface LoginRequest {

@@ -1,7 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { UserEntity } from '../entities/User';
 import { ApiResponseBuilder } from '../utils/apiResponse';
-import { UserResponse, UserWithDetailsResponse } from '../types/response';
+import { UserWithDetailsResponse } from '../types/response';
+import { User } from '../types';
 
 const router = Router();
 const userEntity = new UserEntity();
@@ -11,7 +12,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const users = await userEntity.getAll();
     
-    const responseData: UserResponse[] = users.map(user => ({
+    const responseData: User[] = users.map(user => ({
       login: user.login,
       second_name: user.second_name,
       first_name: user.first_name,
@@ -37,7 +38,7 @@ router.get('/:login', async (req: Request, res: Response) => {
       return res.status(404).json(response);
     }
     
-    const responseData: UserResponse = {
+    const responseData: User = {
       login: user.login,
       second_name: user.second_name,
       first_name: user.first_name,
@@ -63,7 +64,7 @@ router.put('/:login', async (req: Request, res: Response) => {
       return res.status(404).json(response);
     }
     
-    const responseData: UserResponse = {
+    const responseData: User = {
       login: updatedUser.login,
       second_name: updatedUser.second_name,
       first_name: updatedUser.first_name,
