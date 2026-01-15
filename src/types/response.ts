@@ -1,4 +1,4 @@
-import { AmbulatoryCard, Passport, User, UserRole } from ".";
+import { AmbulatoryCard, Passport, SickSheet, User, UserRole } from ".";
 
 // Базовые типы ответов
 export interface ApiResponse<T = any> {
@@ -46,7 +46,7 @@ export interface UserWithDetailsResponse extends User {
 // Типы для пациентов
 export interface PatientResponse {
   id_patient: number;
-  login: string;
+  login?: string;
   snils: string;
   policy_foms: number;
   phone_number: string;
@@ -65,7 +65,7 @@ export interface PatientWithDetailsResponse extends PatientResponse {
 // Типы для докторов
 export interface DoctorResponse {
   id_doctor?: number;
-  login: string;
+  login?: string;
   id_medical_degree?: number;
   id_medical_profile: number;
   medical_degree?: MedicalDegreeResponse;
@@ -92,10 +92,14 @@ export interface ReceptionResponse {
   id_reception: number;
   reception_date: string;
   reception_time: string;
-  id_ambulatory_card: number;
   id_doctor: number;
-  patient?: PatientResponse;
-  doctor?: DoctorResponse;
+  id_patient: number;
+  id_medical_profile: number;
+}
+
+export interface ReceptionWithSick {
+  reception: ReceptionResponse;
+  sicknesses?: SicknessResponse[];
 }
 
 export interface ReceptionShortResponse {
@@ -109,43 +113,13 @@ export interface ReceptionShortResponse {
   };
 }
 
-export interface ReceptionWithDetailsResponse extends ReceptionResponse {
-  patient_info: {
-    id_patient: number;
-    patient_name: string;
-    snils: string;
-  };
-  doctor_info: {
-    id_doctor: number;
-    doctor_name: string;
-    medical_profile: string;
-  };
-  diagnos_name: string;
-  complaint?: string;
-  medication_text?: string;
-  sick_sheet?: SickSheetResponse;
-  medicaments: MedicamentResponse[];
-}
-
 // Типы для болезней (sickness)
 export interface SicknessResponse {
-  id_sickness: number;
-  id_diagnos: number;
-  id_reception: number;
+  id_sickness?: number;
+  id_diagnos?: number;
   complaint?: string;
   medication_text?: string;
-  diagnos?: DiagnosResponse;
-  medicaments?: MedicamentResponse[];
-}
-
-// Типы для больничных листов
-export interface SickSheetResponse {
-  id_sick_sheet: number;
-  sick_sheet_num: number;
-  sick_sheet_date: string;
-  next_date?: string;
-  id_sickness: number;
-  sickness?: SicknessResponse;
+  sick_sheet?: SickSheet;
 }
 
 // Типы для диагнозов
@@ -190,16 +164,4 @@ export interface FilterOptions {
   sortOrder?: 'asc' | 'desc';
   search?: string;
   role_name?: UserRole;
-}
-
-// Типы для статистики
-export interface StatisticsResponse {
-  total_patients: number;
-  total_doctors: number;
-  total_receptions: number;
-  recent_receptions: ReceptionResponse[];
-  popular_medical_profiles: Array<{
-    medical_profile: string;
-    count: number;
-  }>;
 }

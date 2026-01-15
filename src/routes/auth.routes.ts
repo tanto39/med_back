@@ -82,7 +82,7 @@ router.post("/login", async (req: Request, res: Response) => {
     // Получаем дополнительную информацию в зависимости от роли
     const authResponse: AuthResponse = {
       user: {
-        login: user.login,
+        login: user.login as string,
         second_name: user.second_name,
         first_name: user.first_name,
         middle_name: user.middle_name,
@@ -91,14 +91,14 @@ router.post("/login", async (req: Request, res: Response) => {
     };
 
     if (user.role_name === "patient") {
-      const patient = await patientEntity.getPatientByLogin(user.login);
+      const patient = await patientEntity.getPatientByLogin(user.login as string);
       if (patient) {
         authResponse.patient = patient as PatientResponse;
       }
     }
 
     if (user.role_name === "doctor") {
-      const doctor = await doctorEntity.getDoctorByLogin(user.login);
+      const doctor = await doctorEntity.getDoctorByLogin(user.login as string);
       if (doctor) {
         authResponse.doctor = doctor;
       }

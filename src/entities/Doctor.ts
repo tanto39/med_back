@@ -30,8 +30,7 @@ export class DoctorEntity extends BaseEntity<DoctorType> {
       JOIN Medical_Degree md ON d.id_medical_degree = md.id_medical_degree
       JOIN Medical_Profile mp ON d.id_medical_profile = mp.id_medical_profile
       LEFT JOIN Reception r ON d.id_doctor = r.id_doctor
-      LEFT JOIN Ambulatory_Card ac ON r.id_ambulatory_card = ac.id_ambulatory_card
-      LEFT JOIN Patient p ON ac.id_patient = p.id_patient
+      LEFT JOIN Patient p ON r.id_patient = p.id_patient
       LEFT JOIN Users pu ON p.login = pu.login
       WHERE d.id_doctor = $1
       GROUP BY d.id_doctor, u.login, md.id_medical_degree, mp.id_medical_profile
@@ -69,14 +68,14 @@ export class DoctorEntity extends BaseEntity<DoctorType> {
   
         const doctorData: DoctorType = {
           id_doctor: data.id_doctor,
-          login: data.login,
+          login: data.login as string,
           id_medical_profile: data.medical_profile?.id_medical_profile as number,
         };
         const updatedDoctor = await this.update(id, doctorData);
   
         if (data.user) {
           const userEntity = new UserEntity();
-          const updatedUser = await userEntity.update(data.user.login, data.user);
+          const updatedUser = await userEntity.update(data.user.login as string, data.user);
           if (updatedUser) {
             data.user = updatedUser;
           }

@@ -57,7 +57,6 @@ router.get('/', async (req: Request, res: Response) => {
     
     const responseData: DoctorResponse[] = doctors.map(doctor => ({
       id_doctor: doctor.id_doctor,
-      login: doctor.login,
       id_medical_degree: doctor.id_medical_degree,
       id_medical_profile: doctor.id_medical_profile,
       medical_degree: {
@@ -70,7 +69,6 @@ router.get('/', async (req: Request, res: Response) => {
         descr_medical_profile: doctor.descr_medical_profile,
       },
       user: {
-        login: doctor.login,
         second_name: doctor.second_name,
         first_name: doctor.first_name,
         middle_name: doctor.middle_name,

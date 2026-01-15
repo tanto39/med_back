@@ -17,6 +17,20 @@ export class PatientEntity extends BaseEntity<PatientType> {
     super("Patient", "Id_Patient");
   }
 
+  async getAllWithDetails(): Promise<any[]> {
+    const query = `
+      SELECT 
+        p.*,
+        u.*,
+        md.name_medical_degree,
+        mp.name_medical_profile
+      FROM Patient d
+      JOIN Users u ON p.login = u.login
+    `;
+    const result = await pool.query(query);
+    return result.rows;
+  }
+
   async getPatientWithDetails(patientId: number): Promise<any> {
     const query = `
       SELECT 
@@ -38,7 +52,7 @@ export class PatientEntity extends BaseEntity<PatientType> {
       JOIN Users u ON p.login = u.login
       LEFT JOIN Ambulatory_Card ac ON p.id_patient = ac.id_patient
       LEFT JOIN Passport ps ON p.id_patient = ps.id_patient
-      LEFT JOIN Reception r ON ac.id_ambulatory_card = r.id_ambulatory_card
+      LEFT JOIN Reception r ON p.id_patient = r.id_patient
       LEFT JOIN Doctor d ON r.id_doctor = d.id_doctor
       LEFT JOIN Users du ON d.login = du.login
       LEFT JOIN Medical_Profile mp ON d.id_medical_profile = mp.id_medical_profile
@@ -70,7 +84,7 @@ export class PatientEntity extends BaseEntity<PatientType> {
 
       if (data.user) {
         const userEntity = new UserEntity();
-        const updatedUser = await userEntity.update(data.user.login, data.user);
+        const updatedUser = await userEntity.update(data.user.login as string, data.user);
         if (updatedUser) {
           data.user = updatedUser;
         }

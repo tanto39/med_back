@@ -2,7 +2,7 @@ import { DoctorWithDetailsResponse, PatientWithDetailsResponse } from './respons
 // Экспортируем все типы ответов
 export * from './response';
 export interface User {
-  login: string;
+  login?: string;
   password?: string;
   second_name?: string;
   first_name?: string;
@@ -59,7 +59,6 @@ export interface AmbulatoryCard {
 
 export interface SickSheet {
   id_sick_sheet?: number;
-  sick_sheet_num: number;
   sick_sheet_date: string;
   next_date?: string;
   id_sickness: number;

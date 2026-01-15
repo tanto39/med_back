@@ -1,10 +1,36 @@
 import { Router, Request, Response } from "express";
 import { PatientEntity } from "../entities/Patient";
 import { ApiResponseBuilder } from "../utils/apiResponse";
-import { PatientWithDetailsResponse } from "../types/response";
+import { PatientResponse, PatientWithDetailsResponse } from "../types/response";
 
 const router = Router();
 const patientEntity = new PatientEntity();
+
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const patients = await patientEntity.getAllWithDetails();
+    
+    const responseData: PatientResponse[] = patients.map(patient => ({
+      id_patient: patient.id_patient,
+      e_mail: patient.email,
+      phone_number: patient.phone_number,
+      policy_foms: patient.policy_foms,
+      snils: patient.snils,
+      user: {
+        second_name: patient.second_name,
+        first_name: patient.first_name,
+        middle_name: patient.middle_name,
+        role_name: patient.role_name,
+      },
+    }));
+    
+    const response = ApiResponseBuilder.success(responseData);
+    res.json(response);
+  } catch (error: any) {
+    const response = ApiResponseBuilder.error(error.message);
+    res.status(500).json(response);
+  }
+});
 
 // Получить пациента по ID с деталями
 router.get("/:id", async (req: Request, res: Response) => {
